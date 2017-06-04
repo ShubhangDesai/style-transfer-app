@@ -22,3 +22,8 @@ class Camera(object):
         # video stream.
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
+
+    def get_pic(self):
+        cap = cv2.VideoCapture(0) # says we capture an image from a webcam
+        _,cv2_im = cap.read()
+        return cv2.cvtColor(cv2_im,cv2.COLOR_BGR2RGB)

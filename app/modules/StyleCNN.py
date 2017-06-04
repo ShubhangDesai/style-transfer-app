@@ -1,11 +1,4 @@
-import torch.optim as optim
-import torchvision.models as models
-from torch.nn import Parameter
-
-from modules.Flatten import *
-from modules.GramMatrix import *
-from modules.ScaledTanh import *
-from modules.LearnedInstanceNorm2d import *
+import torch.nn as nn
 
 class StyleCNN(object):
     def __init__(self):
@@ -79,3 +72,12 @@ class StyleCNN(object):
 
         content.data.clamp_(0, 255)
         return content
+
+class Flatten(nn.Module):
+    def __init__(self):
+        super(Flatten, self).__init__()
+
+    def forward(self, input):
+        N, C, H, W = input.size()
+        output = input.view(N * C, H * W)
+        return output

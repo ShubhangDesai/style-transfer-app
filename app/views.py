@@ -2,7 +2,10 @@
 from modules import Camera
 from modules import StyleCNN
 
-from flask import render_template, Response
+from PIL import Image
+from StringIO import StringIO
+
+from flask import render_template, Response, send_file
 from app import app
 
 def gen(camera):
@@ -19,6 +22,20 @@ def index():
 def video_feed():
     return Response(gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def get_pil_pic(camera):
+    pic = camera.get_pic()
+    return Image.fromarray(pic)
+
+@app.route('/cam_image')
+def cam_image():
+    pic = get_pil_pic(Camera())
+
+    img_io = StringIO()
+    pic.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+
+    return send_file(img_io, mimetype='image/jpeg')
 
 @app.route('/about')
 def about():
