@@ -1,0 +1,8 @@
+<!-- index.html-->
+
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<img src="{{ url_for('video_feed') }}" style="width:100%; height:auto">
+<br><br><br>
+{% endblock %}
