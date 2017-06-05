@@ -1,18 +1,22 @@
 # views.py
-from modules import Camera
-from modules import StyleCNN
+from utils import *
 
-from PIL import Image
-from StringIO import StringIO
-
-from flask import render_template, Response, send_file
+from flask import render_template, Response, make_response, redirect
+from functools import wraps, update_wrapper
+from datetime import datetime
 from app import app
 
-def gen(camera):
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return update_wrapper(no_cache, view)
 
 @app.route('/')
 def index():
@@ -23,20 +27,11 @@ def video_feed():
     return Response(gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-def get_pil_pic(camera):
-    pic = camera.get_pic()
-    return Image.fromarray(pic)
+@app.route('/stylize')
+def stylize():
+    generate_styles()
+    return 'success'
 
-@app.route('/cam_image')
-def cam_image():
-    pic = get_pil_pic(Camera())
-
-    img_io = StringIO()
-    pic.save(img_io, 'JPEG', quality=70)
-    img_io.seek(0)
-
-    return send_file(img_io, mimetype='image/jpeg')
-
-@app.route('/about')
+@app.route('/result')
 def about():
-    return render_template("about.html")
+    return render_template("result.html")

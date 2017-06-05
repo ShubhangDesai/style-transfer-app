@@ -1,4 +1,8 @@
+import torch
 import torch.nn as nn
+from torch.nn import Parameter
+
+from layers import *
 
 class StyleCNN(object):
     def __init__(self):
@@ -37,11 +41,8 @@ class StyleCNN(object):
                                                nn.Conv2d(32, 3, 9, stride=1, padding=4),
                                                )
 
-        try:
-            self.transform_network.load_state_dict(torch.load("models/transform_net_ckpt"))
-            self.normalization_network.load_state_dict(torch.load("models/normalization_net_ckpt"))
-        except(IOError):
-            pass
+        self.transform_network.load_state_dict(torch.load("models/transform_net_ckpt", map_location=lambda storage, loc: storage))
+        self.normalization_network.load_state_dict(torch.load("models/normalization_net_ckpt", map_location=lambda storage, loc: storage))
 
         self.out_dims = [32, 64, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 64, 32, 3]
 
@@ -72,12 +73,3 @@ class StyleCNN(object):
 
         content.data.clamp_(0, 255)
         return content
-
-class Flatten(nn.Module):
-    def __init__(self):
-        super(Flatten, self).__init__()
-
-    def forward(self, input):
-        N, C, H, W = input.size()
-        output = input.view(N * C, H * W)
-        return output

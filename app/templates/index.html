@@ -3,6 +3,11 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-<img src="{{ url_for('video_feed') }}" style="width:100%; height:auto">
-<br><br><br>
+<img src="{{ url_for('video_feed') }}" style="width:100%; height:auto; padding-bottom:20px">
+<div class="btn-wrapper">
+  <button type="button" class="btn btn-default btn-circle btn-xl" id="stylize-button">
+    <i class="glyphicon glyphicon-camera"></i>
+  </button>
+</div>
+<br>
 {% endblock %}
