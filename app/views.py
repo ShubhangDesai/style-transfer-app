@@ -1,7 +1,7 @@
 # views.py
 from utils import *
 
-from flask import render_template, Response, make_response, redirect
+from flask import render_template, Response, make_response, send_from_directory
 from functools import wraps, update_wrapper
 from datetime import datetime
 from app import app
@@ -35,3 +35,8 @@ def stylize():
 @app.route('/result')
 def about():
     return render_template("result.html")
+
+@app.route('/style_img/<int:id>')
+def style_img(id):
+    filename = "img/style" + str(id) + ".png"
+    return send_from_directory('static', filename, cache_timeout=0)
