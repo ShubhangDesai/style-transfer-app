@@ -1,22 +1,12 @@
 # views.py
 from utils import *
 
-from flask import render_template, Response, make_response, send_from_directory
+from flask import render_template, Response, send_from_directory
+import gevent
+import random
 from functools import wraps, update_wrapper
 from datetime import datetime
 from app import app
-
-def nocache(view):
-    @wraps(view)
-    def no_cache(*args, **kwargs):
-        response = make_response(view(*args, **kwargs))
-        response.headers['Last-Modified'] = datetime.now()
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        return response
-
-    return update_wrapper(no_cache, view)
 
 @app.route('/')
 def index():
@@ -24,11 +14,12 @@ def index():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(Camera()),
+    return Response(gen_thread(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/stylize')
 def stylize():
+    print("hello")
     generate_styles()
     return 'success'
 
@@ -40,3 +31,19 @@ def about():
 def style_img(id):
     filename = "img/style" + str(id) + ".png"
     return send_from_directory('static', filename, cache_timeout=0)
+
+def task(pid):
+    """
+    Some non-deterministic task
+    """
+    gevent.sleep(random.randint(0,2)*0.001)
+    print('Task %s done' % pid)
+
+def asynchronous():
+    threads = [gevent.spawn(task, i) for i in xrange(10)]
+    gevent.joinall(threads)
+
+@app.route('/test')
+def test():
+    asynchronous()
+    return 'test'

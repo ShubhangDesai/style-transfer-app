@@ -8,6 +8,7 @@ from StringIO import StringIO
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 import scipy.misc
+import gevent
 
 loader = transforms.Compose([
     transforms.Scale(256),
@@ -24,6 +25,11 @@ def gen(camera):
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def gen_thread(camera):
+    thread = [gevent.spawn(gen, camera)]
+    gevent.joinall(thread)
+    return thread[0].value
 
 def image_loader(image):
     image = Variable(loader(image))

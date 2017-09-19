@@ -1,6 +1,7 @@
 # Camera.py
 
 import cv2
+import numpy as np
 
 class Camera(object):
     def __init__(self):
@@ -17,9 +18,11 @@ class Camera(object):
 
     def get_frame(self):
         success, image = self.video.read()
-        # We are using Motion JPEG, but OpenCV defaults to capture raw images,
-        # so we must encode it into JPEG in order to correctly display the
-        # video stream.
+        image = cv2.flip(image, 1)
+        height, width = np.size(image, 0), np.size(image, 1)
+        start = (width - height)/2
+        end = start + height
+        cv2.rectangle(image, (start, 0), (end, height), (243, 150, 33), 5)
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
 

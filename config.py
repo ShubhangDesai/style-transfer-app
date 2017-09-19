@@ -1,3 +1,3 @@
 # config.py
 
-DEBUG = True
+DEBUG = False
